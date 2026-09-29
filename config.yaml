@@ -1,0 +1,205 @@
+model:
+  provider: omniroute
+  default: auto/best-coding
+  base_url: http://localhost:20128/v1
+providers:
+  omniroute:
+    name: OmniRoute（本地 AI 网关，只配活动路由）
+    base_url: http://localhost:20128/v1
+    api_mode: chat_completions
+    transport: openai_chat
+    model: auto/best-coding
+    models:
+      auto/best-coding:
+        name: 最强编程主力·GLM-5.2 [推荐]
+        context_length: 1048576
+        supports_vision: true
+        supports_tools: true
+        supports_reasoning: true
+        pricing: FREE
+      auto/pro-coding:
+        name: 专业编程·Kimi-K2.6
+        context_length: 1048576
+        supports_vision: true
+        supports_tools: true
+        supports_reasoning: true
+        pricing: FREE
+      auto/best-reasoning:
+        name: 最强推理·GLM-5.2
+        context_length: 1048576
+        supports_vision: true
+        supports_tools: true
+        supports_reasoning: true
+        pricing: FREE
+      auto/pro-reasoning:
+        name: 专业推理·GLM-5.2
+        context_length: 1048576
+        supports_vision: true
+        supports_tools: true
+        supports_reasoning: true
+        pricing: FREE
+      auto/best-chat:
+        name: 最强聊天·GLM-5.2
+        context_length: 1048576
+        supports_vision: true
+        supports_tools: true
+        supports_reasoning: true
+        pricing: FREE
+      auto/best-fast:
+        name: 最快通用·GLM-5.2
+        context_length: 1048576
+        supports_vision: true
+        supports_tools: true
+        supports_reasoning: true
+        pricing: FREE
+      auto/best-vision:
+        name: 视觉·GLM-5.2
+        context_length: 1048576
+        supports_vision: true
+        supports_tools: true
+        supports_reasoning: true
+        pricing: FREE
+      auto/smart:
+        name: 综合智能·GLM-5.2
+        context_length: 1048576
+        supports_vision: true
+        supports_tools: true
+        supports_reasoning: true
+        pricing: FREE
+      auto/claude-sonnet:
+        name: 仿Claude质量·GLM-5.2
+        context_length: 1048576
+        supports_vision: true
+        supports_tools: true
+        supports_reasoning: true
+        pricing: FREE
+      free-first:
+        name: 优先免费路由·已修复(剔除小模型)
+        context_length: 524288
+        supports_vision: true
+        supports_tools: true
+        supports_reasoning: true
+        pricing: FREE
+    discover_models: false
+    key: sk-3d0a484f033cb24a-c42799-f5e017d0
+  agnes:
+    name: Agnes AI（最终兜底：免费中文模型，256K上下文）
+    base_url: https://api.agnes-ai.cn/v1
+    api_mode: chat_completions
+    transport: openai_chat
+    model: agnes-3.0-flash
+    models:
+      agnes-3.0-flash:
+        name: Agnes 3.0 Flash 免费 🇨🇳
+        context_length: 256000
+        supports_vision: true
+        supports_tools: true
+        supports_reasoning: true
+        pricing: FREE
+      agnes-2.5-flash:
+        name: Agnes 2.5 Flash 免费 🇨🇳
+        context_length: 256000
+        supports_vision: true
+        supports_tools: true
+        supports_reasoning: true
+        pricing: FREE
+    discover_models: false
+    key_env: HERMES_CUSTOM_AGNES_API_KEY
+fallback_providers:
+  - provider: agnes
+    model: agnes-3.0-flash
+stt:
+  enabled: true
+  language: zh
+  local:
+    model: E:/Hermes Agent/cache/huggingface/models--Systran--faster-whisper-medium/snapshots/08e178d48790749d25932bbc082711ddcfdfbc4f
+  openai:
+    model: whisper-1
+    language: ''
+command_allowlist:
+  - execute_code
+sessions:
+  auto_archive: false
+_config_version: 49
+resilience:
+  model_rotation_enabled: true
+  model_rotation_on_errors:
+    - rate_limit
+    - timeout
+    - connection_error
+    - server_error
+  model_rotation_fallback_order:
+    - auto/pro-coding
+    - auto/best-reasoning
+    - auto/best-chat
+    - omniroute/auto/best-coding
+    - omniroute/auto/pro-coding
+    - omniroute/auto/best-reasoning
+    - omniroute/auto/pro-reasoning
+    - omniroute/auto/best-chat
+    - omniroute/auto/best-fast
+    - omniroute/auto/best-vision
+    - omniroute/auto/smart
+    - omniroute/auto/claude-sonnet
+    - omniroute/free-first
+    - openrouter/thinkingmachines/inkling:free
+    - openrouter/nvidia/nemotron-3-ultra-550b-a55b:free
+    - openrouter/nvidia/nemotron-3-super-120b-a12b:free
+    - openrouter/minimax/minimax-m3:free
+    - openrouter/z-ai/glm-5.2:free
+    - agnes/agnes-3.0-flash
+    - agnes/agnes-2.5-flash
+  auto_screenshot_on_error: true
+  auto_approve_enabled: true
+  stall_watchdog_enabled: true
+  stall_detect_seconds: 180
+  stall_max_auto_resumes: 3
+  smart_auto_choice_enabled: true
+  smart_choice_timeout_seconds: 300
+  ocr_engine: rapidocr
+  api_retry_on_interrupt: true
+  gateway_error_resume_triggers:
+    - 任务处理异常
+    - 请稍后重试
+    - connection aborted
+    - internal error
+    - '503'
+    - '502'
+    - '504'
+    - 5xx
+    - rate limit
+    - timeout
+    - timed out
+    - empty response
+  enabled: true
+  model_auto_rollback_enabled: true
+  model_rollback_after_failures: 2
+plugins:
+  enabled:
+    - prompt-optimizer
+    - quick-reply
+    - resilience
+  entries:
+    resilience:
+      allow_gateway_injection: true
+hooks:
+  pre_llm_call:
+    - command: python "E:/Hermes Agent/scripts/workflow_injector.py"
+      timeout: 10
+hooks_auto_accept: true
+approvals:
+  mode: 'off'
+browser:
+  use_real_profile: true
+security:
+  protected_instruction_files: false
+image_gen:
+  provider: agnes
+  model: agnes-image-2.5-flash
+video_gen:
+  provider: agnes
+  model: agnes-video-2.5-flash
+skills:
+  disabled:
+    - alipay-authenticate-wallet
+    - alipay-payment-skill
